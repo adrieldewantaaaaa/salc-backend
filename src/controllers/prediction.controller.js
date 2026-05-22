@@ -1,5 +1,5 @@
-const db = require('../config/db');
 const axios = require('axios');
+const db = require('../config/db');
 require('dotenv').config();
 
 const PredictionController = {
@@ -12,32 +12,41 @@ const PredictionController = {
         return res.status(400).json({ success: false, message: 'questionId and answer are required' });
       }
 
-      // Kirim ke Flask/FastAPI ML service
-      const mlResponse = await axios.post(`${process.env.ML_SERVICE_URL}/predict/feedback`, {
-        question_id: questionId,
-        answer,
+      // Kirim ke FastAPI ML service 
+      const mlResponse = await axios.post(`${process.env.ML_SERVICE_URL}/predict`, {
+        text: answer,
       });
 
-      const { category, score, feedback, recommendation } = mlResponse.data;
+      const { kategori, skor, feedback, confidence } = mlResponse.data;
 
       // Simpan hasil ke DB
       await db.execute(
-        `INSERT INTO predictions (user_id, question_id, answer, category, score, feedback, recommendation)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [req.user.id, questionId, answer, category, score, feedback, recommendation]
+        `INSERT INTO predictions (user_id, question_id, answer, category, score, feedback)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [req.user.id, questionId, answer, kategori, skor, feedback]
       );
 
       res.json({
         success: true,
-        data: { category, score, feedback, recommendation },
+        data: {
+          kategori,
+          skor,
+          feedback,
+          confidence,
+        },
       });
     } catch (err) {
       console.error('Auto feedback error:', err.message);
-      res.status(500).json({ success: false, message: 'Failed to get auto feedback' });
+
+      // Fallback jika ML service tidak jalan
+      res.status(500).json({
+        success: false,
+        message: 'ML service tidak tersedia. Pastikan AI service sudah berjalan di port 5000.',
+      });
     }
   },
 
-  // GET /api/predictions/early-warning — cek apakah user berisiko tertinggal
+  // GET /api/predictions/early-warning 
   getEarlyWarning: async (req, res) => {
     try {
       const mlResponse = await axios.post(`${process.env.ML_SERVICE_URL}/predict/early-warning`, {
@@ -52,7 +61,6 @@ const PredictionController = {
       });
     } catch (err) {
       console.error('Early warning error:', err.message);
-      // Fallback response jika ML service belum siap
       res.json({
         success: true,
         data: { is_at_risk: false, risk_level: 'low', message: 'ML service not yet available' },
@@ -60,7 +68,7 @@ const PredictionController = {
     }
   },
 
-  // GET /api/predictions/recommendation — rekomendasi materi
+  // GET /api/predictions/recommendation 
   getRecommendation: async (req, res) => {
     try {
       const mlResponse = await axios.post(`${process.env.ML_SERVICE_URL}/predict/recommendation`, {
