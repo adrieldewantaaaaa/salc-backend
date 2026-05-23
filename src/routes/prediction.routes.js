@@ -6,8 +6,6 @@ const { validateFeedback } = require('../middlewares/validation.middleware');
 
 router.use(verifyToken);
 
-router.post('/feedback',       validateFeedback, PredictionController.getAutoFeedback);
-router.get('/early-warning',   PredictionController.getEarlyWarning);
-router.get('/recommendation',  PredictionController.getRecommendation);
+router.post('/feedback', validateFeedback, PredictionController.getAutoFeedback);
 
 module.exports = router;

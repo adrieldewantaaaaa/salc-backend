@@ -170,14 +170,6 @@
             "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
             "body": { "mode": "raw", "raw": "{\n  \"questionId\": 1,\n  \"answer\": \"Algoritma adalah langkah-langkah sistematis untuk menyelesaikan masalah dengan efisien\"\n}" }
           }
-        },
-        {
-          "name": "Early Warning Check",
-          "request": { "method": "GET", "url": "{{base_url}}/api/predictions/early-warning", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }] }
-        },
-        {
-          "name": "Get Recommendations",
-          "request": { "method": "GET", "url": "{{base_url}}/api/predictions/recommendation", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }] }
         }
       ]
     },
@@ -185,8 +177,17 @@
       "name": "⚠️ Early Warning",
       "item": [
         {
-          "name": "Check My Risk",
+          "name": "Check My Risk (Aktivitas Belajar)",
           "request": { "method": "GET", "url": "{{base_url}}/api/early-warning/me", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }] }
+        },
+        {
+          "name": "Check Risk (Performa Akademik)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/early-warning/performance",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"gender\": 0,\n  \"reading_score\": 45,\n  \"writing_score\": 40\n}" }
+          }
         },
         {
           "name": "Get Unresolved Warnings (teacher/admin only)",
@@ -202,8 +203,17 @@
       "name": "🎯 Recommendations",
       "item": [
         {
-          "name": "Get My Recommendations",
+          "name": "Get My Recommendations (Aktivitas Belajar)",
           "request": { "method": "GET", "url": "{{base_url}}/api/recommendations", "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }] }
+        },
+        {
+          "name": "Get Recommendations (Performa Akademik)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/recommendations/performance",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"gender\": 0,\n  \"reading_score\": 45,\n  \"writing_score\": 40\n}" }
+          }
         },
         {
           "name": "Mark Recommendation As Done",
